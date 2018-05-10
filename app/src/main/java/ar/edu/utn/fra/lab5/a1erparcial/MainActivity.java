@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -42,11 +43,14 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
 
     //TODO: Limpiar MainActivity, pasando lo necesario a las clases Controlador y VistaControlador para usar MVC
     Adapter adaptador;
-    ImageView imgContacto;
+    VistaControlador vista;
+    Controlador controlador;
+    Modelo m;
+    /*ImageView imgContacto;
     TextView main_nombre;
-    TextView main_telefono;
-    List<Modelo> contactos;
-    Button btn_llamar;
+    TextView main_telefono;*/
+    //List<Modelo> contactos;
+    //Button btn_llamar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,13 +58,16 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
         setContentView(R.layout.activity_main);
 
 
-        imgContacto= (ImageView) this.findViewById(R.id.vh_img);
+        /*imgContacto= (ImageView) this.findViewById(R.id.vh_img);
         main_nombre = (TextView) this.findViewById(R.id.main_nombre);
-        main_telefono = (TextView) this.findViewById(R.id.main_telefono);
-        btn_llamar = (Button) this.findViewById(R.id.btn_llamar);
-        btn_llamar.setOnClickListener(this);
+        main_telefono = (TextView) this.findViewById(R.id.main_telefono);*/
+        //btn_llamar = (Button) this.findViewById(R.id.btn_llamar);
+        //btn_llamar.setOnClickListener(this);
 
-        contactos = new ArrayList<Modelo>();
+        this.vista = new VistaControlador(this);
+        this.controlador = new Controlador(vista);
+
+        /*contactos = new ArrayList<Modelo>();
         contactos.add(new Modelo("Juan", "Garcia", "4444-4444"));
         contactos.add(new Modelo("Pablo", "Lopez", "5555-45554"));
         contactos.add(new Modelo("Ricardo", "Perez", "4124-1234"));
@@ -78,12 +85,12 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
         contactos.add(new Modelo("Jazmin", "Solano", "1252-6234"));
         contactos.add(new Modelo("Nicolas", "trejo", "2634-2346"));
         contactos.add(new Modelo("Osvaldo", "Ramallo", "7345-4444"));
-        contactos.add(new Modelo("Alfredo", "Garcia", "2364-2346"));
+        contactos.add(new Modelo("Alfredo", "Garcia", "2364-2346"));*/
 
-        RecyclerView rv = (RecyclerView)this.findViewById(R.id.rv1);
-        rv.setLayoutManager(new GridLayoutManager(this,2));
-        adaptador = new Adapter(this, contactos, this);
-        rv.setAdapter(adaptador);
+        //RecyclerView rv = (RecyclerView)this.findViewById(R.id.rv1);
+        vista.rv.setLayoutManager(new GridLayoutManager(this,2));
+        adaptador = new Adapter(this, controlador.getContactos(), this);
+        vista.rv.setAdapter(adaptador);
 
     }
 
@@ -92,12 +99,15 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
     @Override
     public void onItemClick(View view, int position) {
         //TODO: Setear Textos
+        this.m = this.controlador.getContactos().get(position);
+        this.vista.main_nombre.setText(m.getNombre());
+        this.vista.main_telefono.setText(m.getTelefono());
     }
 
     @Override
     public void onClick(View v) {
         //TODO: completar lo que falta
-
+        Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + this.m.getTelefono()));
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, 0);
         }else{
@@ -108,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         //TODO: Cargar menu desde archivo xml
+        getMenuInflater().inflate(R.menu.menu, menu);
         return true;
     }
 
@@ -116,9 +127,11 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
         switch (item.getItemId()){
             case R.id.salir:
                 //TODO: Completar para salir de la aplicacion
+                finish();
                 break;
             case R.id.nuevo:
                 //TODO: mostrar texto por consola
+                Log.d("TAG_BTN_NUEVO", "TEXTO 1");
                 break;
         }
         return super.onOptionsItemSelected(item);
